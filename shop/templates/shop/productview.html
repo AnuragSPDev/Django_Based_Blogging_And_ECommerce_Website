@@ -1,0 +1,70 @@
+{% extends 'shop/base.html' %}
+{% block title %} {{product.product_name}} - Product View {% endblock %}
+{% block body %}
+
+<div class="container">
+    <div class="row my-3">
+        <div class="col-md-4">
+            <img src="/media/{{product.image}}">
+        </div>
+        <div class="col-md-8">
+            <h2>{{product.product_name}}</h2>
+            <p><strong>Rs. {{product.price}}</strong></p>
+            <p>{{product.desc}}</p>
+        </div>
+    </div>
+    <button class="btn btn-primary">Buy Now</button>
+    <button class="btn btn-primary">Add To Cart</button>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    console.log('Working')
+  
+    if (localStorage.getItem('cart') == null) {
+        console.log('cart is currently empty');
+        var cart = {};
+    }
+    else {
+        cart = JSON.parse(localStorage.getItem('cart'));
+        console.log("Checking cart's length");
+        console.log(Object.keys(cart).length);
+        // document.getElementById('cart').innerHTML = Object.keys(cart).length;
+        const values = Object.values(cart)
+        document.getElementById('cart').innerHTML = values.reduce(get_number_of_items, 0)
+    }
+  
+    function get_number_of_items(total, num){
+      result = total + num;
+      console.log('result: ', result);
+      return result;
+    }
+  
+    $('.cart').click(function () {
+        console.log('button clicked');
+        var prod_id = this.id.toString();
+        console.log(prod_id);
+  
+        if (cart[prod_id] != undefined) {
+            cart[prod_id] = cart[prod_id] + 1;
+        }
+        else {
+            cart[prod_id] = 1;
+        }
+  
+        console.log(cart);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        // document.getElementById('cart').innerHTML = Object.keys(cart).length;
+        const values = Object.values(cart)
+        document.getElementById('cart').innerHTML = values.reduce(get_number_of_items, 0)
+    });
+  
+    $('#popcart').popover();
+    document.getElementById('popcart').setAttribute('data-content', '<strong>Cart contains your selected products</strong');
+  
+  </script>
+
+{% endblock %}

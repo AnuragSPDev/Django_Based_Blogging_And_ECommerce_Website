@@ -1,0 +1,35 @@
+{% extends 'shop/base.html' %}
+{% block title %} Tracker {% endblock %}
+{% block body %}
+
+<div class="container">
+    <div class="col my-4">
+        <h5>Please enter your order ID and email to track your order</h5>
+        <form class="row g-3" method="post" action="#">
+            {% csrf_token %}
+            <div class="col-md-6">
+                <label for="orderId" class="form-label">Order ID</label>
+                <input type="text" class="form-control" id="orderId" name="orderId">
+            </div>
+            <div class="col-md-6">
+                <label for="inputEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="inputEmail" name="inputEmail">
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Place Order</button>
+            </div>
+        </form>
+    </div>
+    <hr>
+    <div class="col my-4">
+        <h5>Track your order below</h5>
+        <ol class="list-group list-group-numbered" id="item">
+        </ol>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}

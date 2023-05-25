@@ -1,0 +1,57 @@
+{% extends 'shop/base.html' %}
+{% block title %} Contact us {% endblock %}
+{% block body %}
+
+<!-- <ul class="messages"> -->
+    
+    <!-- <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li> -->
+<!-- </ul> -->
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }}" role="alert">
+    {{ message }}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+<div class="container">
+    <main class="form-signin w-100 m-auto">
+        <form class="text-center" method="post" action="/shop/contact/">
+            {% csrf_token %}
+            <h1 class="h3 mb-3 fw-normal">Contact Us</h1>
+
+            <!-- <div class="form-floating"> -->
+            <div class="mb-3">
+                <input type="text" class="form-control my-2" id="name" placeholder="Username" name="username">
+                <!-- <label for="name" >Username</label> -->
+            </div>
+            <!-- <div class="form-floating"> -->
+            <div class="mb-3">
+                <input type="email" class="form-control my-2" id="floatingInput" placeholder="name@example.com"
+                    name="email">
+                <!-- <label for="floatingInput">Email address</label> -->
+            </div>
+            <!-- <div class="form-floating"> -->
+            <div class="mb-3">
+                <input type="tel" class="form-control my-2" id="phone" placeholder="Phone" name="phone">
+                <!-- <label for="phone">Phone</label> -->
+            </div>
+            <!-- <div class="form-floating"> -->
+            <div class="mb-3">
+                <!-- <div class=""> -->
+                <textarea class="form-control my-2" id="desc" placeholder="Description" name="desc" rows="5"></textarea>
+                <!-- <label for="desc">Description</label> -->
+            </div>
+
+            <!-- <div class="checkbox mb-3">
+        <label>
+          <input type="checkbox" value="remember-me"> Remember me
+        </label>
+      </div> -->
+            <button class="w-100 btn btn-lg btn-success my-3" type="submit">Send Query</button>
+        </form>
+    </main>
+</div>
+
+{% endblock %}
