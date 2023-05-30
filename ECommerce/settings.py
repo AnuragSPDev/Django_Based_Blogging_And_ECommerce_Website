@@ -42,6 +42,14 @@ INSTALLED_APPS = [
     'shop.apps.ShopConfig',
 ]
 
+# Third party apps
+
+THIRD_PARTY_APPS = [
+    'google_translate',
+]
+
+INSTALLED_APPS += THIRD_PARTY_APPS
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

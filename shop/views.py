@@ -22,7 +22,7 @@ def index(request):
         all_products.append([products, range(1, num_of_slides), num_of_slides])
 
     params = {'all_products': all_products}
-    return render(request, 'shop/in+dex.html', params)
+    return render(request, 'shop/index.html', params)
 
 def about(request):
     return render(request, 'shop/aboutus.html')
