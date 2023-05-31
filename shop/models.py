@@ -45,4 +45,4 @@ class OrderUpdate(models.Model):
     update_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.update_desc[:20] + '...'
+        return f'{self.update_desc[:20]}...'

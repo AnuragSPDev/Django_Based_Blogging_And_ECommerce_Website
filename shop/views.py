@@ -46,23 +46,25 @@ def search(request):
 
 def tracker(request):
     if request.method == 'POST':
-        order_id = request.POST.get('orderId')
-        email = request.POST.get('inputEmail')
+        order_id = request.POST.get('order_id')
+        email = request.POST.get('email')
         try:
-            order = Order.objects.filter(order_id=order_id, email=email)
-            if len(order) > 0:
-                order_update = OrderUpdate.objects.filter(order_id=order_id)
-                updates = []
-                for update in order_update:
-                    updates.append({'text': update.update_desc, 'update_time':update.update_time})
-                    response = json.dumps(updates)
-                    return HttpResponse(response)
-            else:
-                return HttpResponse('error')
-        except:
-            return HttpResponse('exception')
+            return get_order_updates(order_id, email)
+        except Exception:
+            return HttpResponse('{}')
 
     return render(request, 'shop/tracker.html')
+
+def get_order_updates(order_id, email):
+    order = Order.objects.filter(order_id=order_id, email=email)
+    if len(order) <= 0:
+        return HttpResponse('{}')
+    order_update = OrderUpdate.objects.filter(order_id=order_id)
+    updates = []
+    for update in order_update:
+        updates.append({'text': update.update_desc, 'update_time':update.update_time})
+        response = json.dumps(updates, default=str)
+    return HttpResponse(response)
 
 def productview(request, id):
     product = Product.objects.filter(id=id)
@@ -70,28 +72,59 @@ def productview(request, id):
     return render(request, 'shop/productview.html', {'product': product[0]})
 
 def checkout(request):
-    if request.method == 'POST':
-        name = request.POST.get('inputFName') + ' ' +  request.POST.get('inputLName')
-        phone = request.POST.get('inputPhone')
-        email = request.POST.get('inputEmail')
-        address = request.POST.get('inputAddress') + ' ' + request.POST.get('inputAddress2')
-        city = request.POST.get('inputCity')
-        state = request.POST.get('inputState')
-        zip_code = request.POST.get('inputZip')
-        items_json = request.POST.get('items_json')
-        order = Order(name=name, phone=phone, email=email, address=address, city=city, state=state,
-                      zip_code=zip_code, items_json=items_json)
-        
-        order.save()
-
-        # when an order has been placed, update the OrderUpdate table to reflect the initial update
-        # that an order has been placed.
-        initial_update = OrderUpdate(order_id=order.order_id, update_desc = 'Your order has been placed.')
-        initial_update.save()
-
-        order_placed = True
-        order_id = order.order_id
-
-        return render(request, 'shop/checkout.html', {'order_placed':order_placed, 'order_id':order_id})
+    if request.method != 'POST':
+        return render(request, 'shop/checkout.html')
+    error_msg = ''
     
-    return render(request, 'shop/checkout.html')
+    f_name = request.POST.get('inputFName')
+    l_name =  request.POST.get('inputLName')
+    name = f'{f_name} {l_name}'
+    if not name.strip():
+        error_msg += "Name can't be left blank. "
+    
+    phone = request.POST.get('inputPhone')
+    if not phone:
+        error_msg += "Phone can't be left blank. "
+    
+    email = request.POST.get('inputEmail')
+    if not email:
+        error_msg += "Email can't be left blank. "
+    
+    address_1 = request.POST.get('inputAddress')
+    address_2 = request.POST.get('inputAddress2')
+    address = f'{address_1} {address_2}'
+    if not address.strip():
+        error_msg += "Address can't be left blank. "
+    
+    city = request.POST.get('inputCity')
+    if not city:
+        error_msg += "City can't be left blank. "
+    
+    state = request.POST.get('inputState')
+    if not state:
+        error_msg += "State can't be left blank. "
+    
+    zip_code = request.POST.get('inputZip')
+    if not zip_code:
+        error_msg += "Zip code can't be left blank. "
+    
+    items_json = request.POST.get('items_json')
+    
+    if error_msg:
+        return render(request, 'shop/checkout.html', {'error_msg':error_msg})
+    
+    order = Order(name=name, phone=phone, email=email, address=address, city=city, state=state,
+                  zip_code=zip_code, items_json=items_json)
+
+    order.save()
+
+    # when an order has been placed, update the OrderUpdate table to reflect the initial update
+    # that an order has been placed.
+    initial_update = OrderUpdate(order_id=order.order_id, update_desc = 'Your order has been placed.')
+    initial_update.save()
+
+    order_id = order.order_id
+
+    
+    order_placed = True
+    return render(request, 'shop/checkout.html ', {'order_placed':order_placed, 'order_id':order_id, 'error_msg':error_msg})

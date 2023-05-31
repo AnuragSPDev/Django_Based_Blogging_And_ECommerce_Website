@@ -9,8 +9,12 @@
     </ol>
   </div>
   <hr>
-  <div class="col my-4">
+  <!-- By default shipping details section is not shown, it will be displayed once cart has any item in it -->
+  <div class="col my-4" id="shipping_details" style="display: none;">
     <h5>Enter shipping details</h5>
+    {% if error_msg %}
+    <h6 class="alert alert-danger text-center">{{error_msg}}</h2>
+    {% endif %}
     <form class="row g-3" method="post" action="/shop/checkout/">
       {% csrf_token %}
       <input type="hidden" name="items_json", id="items_json">
@@ -75,6 +79,8 @@
     $('#item').append(myStr);
   }
   else {
+    // show shipping details section only when cart has item(s)
+    document.getElementById('shipping_details').style.display = 'block';
     for (var item in cart) {
       let qty = cart[item][0];
       let name = cart[item][1];
@@ -95,7 +101,7 @@
   {% if order_placed %}
   alert('Your oder has been placed, please track the same using oder id: {{order_id}}')
   localStorage.clear();
-  document.location='/shop';
+  document.location='/shop';  // redirect to shop home page after placing an order
   {% endif %}
 </script>
 {% endblock %}

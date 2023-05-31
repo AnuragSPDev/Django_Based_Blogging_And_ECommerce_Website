@@ -5,7 +5,7 @@
 <div class="container">
     <div class="col my-4">
         <h5>Please enter your order ID and email to track your order</h5>
-        <form class="row g-3" method="post" action="#">
+        <form class="row g-3" method="post" action="#" id="trackerform">
             {% csrf_token %}
             <div class="col-md-6">
                 <label for="orderId" class="form-label">Order ID</label>
@@ -16,14 +16,14 @@
                 <input type="email" class="form-control" id="inputEmail" name="inputEmail">
             </div>
             <div class="col-12">
-                <button type="submit" class="btn btn-primary">Place Order</button>
+                <button type="submit" class="btn btn-primary">Track Order</button>
             </div>
         </form>
     </div>
     <hr>
     <div class="col my-4">
         <h5>Track your order below</h5>
-        <ol class="list-group list-group-numbered" id="item">
+        <ol class="list-group list-group-numbered" id="items">
         </ol>
     </div>
 </div>
@@ -31,5 +31,55 @@
 {% endblock %}
 
 {% block js %}
+<script>
+    $('#trackerform').submit(function (event) {
+        $('#items').empty();
+
+        var form_data = {
+            'order_id': $('input[name=orderId]').val(),
+            'email': $('input[name=inputEmail]').val(),
+            'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+        };
+
+        $.ajax({
+            url: "{% url 'trackingstatus'  %}",
+            method: 'POST',
+            data: form_data,
+            success: function (data) {
+                console.log(data);
+                parsed_data = JSON.parse(data);
+                if (parsed_data.length > 0 && parsed_data != {}) {
+                    for (i = 0; i < parsed_data.length; i++) {
+                        date = new Date(parsed_data[i]['update_time']);
+                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                        let text = parsed_data[i]['text'];
+                        let update_time = date.toLocaleDateString(undefined, options);
+                        const seconds = String(date.getSeconds()).padStart(2, '0');
+                        time = ' ' + date.getHours() + ':' + date.getMinutes() + ':' + seconds;
+                        update_time += time;
+                        myStr = `<li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                    ${text}
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">${update_time}</span>
+                                </li>`
+                        $('#items').append(myStr);
+                    }
+                } else {
+                    myStr = `
+                                <div class="ms-2 me-auto">
+                                 <strong>Sorry, No order found with this order id. Please check order number and type correct email id.</strong>
+                                </div>
+                                
+                            `
+                    $('#items').append(myStr);
+                }
+
+            }
+        });
+        event.preventDefault();
+    });
+
+</script>
 
 {% endblock %}
