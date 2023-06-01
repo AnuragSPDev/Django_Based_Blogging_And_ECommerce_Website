@@ -5,7 +5,11 @@
 <div class="container">
   <div class="col my-4">
     <h5>Please check items currently in your cart</h5>
+    <ol class="list-group" id="item_heading">
+    </ol>
     <ol class="list-group list-group-numbered" id="item">
+    </ol>
+    <ol class="list-group" id="item_total">
     </ol>
   </div>
   <hr>
@@ -14,50 +18,51 @@
     <h5>Enter shipping details</h5>
     {% if error_msg %}
     <h6 class="alert alert-danger text-center">{{error_msg}}</h2>
-    {% endif %}
-    <form class="row g-3" method="post" action="/shop/checkout/">
-      {% csrf_token %}
-      <input type="hidden" name="items_json", id="items_json">
-      <div class="col-md-6">
-        <label for="inputFName" class="form-label">First Name</label>
-        <input type="text" class="form-control" id="inputFName" name="inputFName">
-      </div>
-      <div class="col-md-6">
-        <label for="inputLName" class="form-label">Last Name</label>
-        <input type="text" class="form-control" id="inputLName" name="inputLName">
-      </div>
-      <div class="col-md-4">
-        <label for="inputPhone" class="form-label">Phone</label>
-        <input type="tel" class="form-control" id="inputPhone" name="inputPhone">
-      </div>
-      <div class="col-md-8">
-        <label for="inputEmail" class="form-label">Email</label>
-        <input type="email" class="form-control" id="inputEmail" name="inputEmail">
-      </div>
-      <div class="col-12">
-        <label for="inputAddress" class="form-label">Address</label>
-        <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St" name="inputAddress">
-      </div>
-      <div class="col-12">
-        <label for="inputAddress2" class="form-label">Address 2</label>
-        <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor" name="inputAddress2">
-      </div>
-      <div class="col-md-4">
-        <label for="inputCity" class="form-label">City</label>
-        <input type="text" class="form-control" id="inputCity" name="inputCity">
-      </div>
-      <div class="col-md-4">
-        <label for="inputState" class="form-label">State</label>
-        <input type="text" class="form-control" id="inputState" name="inputState">
-      </div>
-      <div class="col-md-4">
-        <label for="inputZip" class="form-label">Zip</label>
-        <input type="text" class="form-control" id="inputZip" name="inputZip">
-      </div>
-      <div class="col-12">
-        <button type="submit" class="btn btn-primary">Place Order</button>
-      </div>
-    </form>
+      {% endif %}
+      <form class="row g-3" method="post" action="/shop/checkout/">
+        {% csrf_token %}
+        <input type="hidden" name="items_json", id="items_json">
+        <div class="col-md-6">
+          <label for="inputFName" class="form-label">First Name</label>
+          <input type="text" class="form-control" id="inputFName" name="inputFName">
+        </div>
+        <div class="col-md-6">
+          <label for="inputLName" class="form-label">Last Name</label>
+          <input type="text" class="form-control" id="inputLName" name="inputLName">
+        </div>
+        <div class="col-md-4">
+          <label for="inputPhone" class="form-label">Phone</label>
+          <input type="tel" class="form-control" id="inputPhone" name="inputPhone">
+        </div>
+        <div class="col-md-8">
+          <label for="inputEmail" class="form-label">Email</label>
+          <input type="email" class="form-control" id="inputEmail" name="inputEmail">
+        </div>
+        <div class="col-12">
+          <label for="inputAddress" class="form-label">Address</label>
+          <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St" name="inputAddress">
+        </div>
+        <div class="col-12">
+          <label for="inputAddress2" class="form-label">Address 2</label>
+          <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor"
+            name="inputAddress2">
+        </div>
+        <div class="col-md-4">
+          <label for="inputCity" class="form-label">City</label>
+          <input type="text" class="form-control" id="inputCity" name="inputCity">
+        </div>
+        <div class="col-md-4">
+          <label for="inputState" class="form-label">State</label>
+          <input type="text" class="form-control" id="inputState" name="inputState">
+        </div>
+        <div class="col-md-4">
+          <label for="inputZip" class="form-label">Zip</label>
+          <input type="text" class="form-control" id="inputZip" name="inputZip">
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Place Order</button>
+        </div>
+      </form>
   </div>
 </div>
 
@@ -74,6 +79,8 @@
   console.log('In checkout page, cart: ', cart);
 
   var sum = 0;
+  var total_qty = 0;
+  var total_price = 0;
   if ($.isEmptyObject(cart)) {
     myStr = '<p>You have not pick any item, please select items to purchanse and then check them out. Thank you!</p>'
     $('#item').append(myStr);
@@ -81,19 +88,50 @@
   else {
     // show shipping details section only when cart has item(s)
     document.getElementById('shipping_details').style.display = 'block';
+
+    mystr_heading = `
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <strong>Product Name</strong>
+                        </div>
+                        <span class="badge bg-primary rounded-pill"><strong>Quantity</strong></span>&nbsp;
+                        <span class="badge bg-primary rounded-pill"><strong>Price</strong></span>
+                      </li>
+                      `
+      $('#item_heading').append(mystr_heading);
+
     for (var item in cart) {
       let qty = cart[item][0];
       let name = cart[item][1];
+      let price = cart[item][2];
+      price = parseInt(price.slice(4));
       sum = sum + qty;
-      myStr = `<li class="list-group-item d-flex justify-content-between align-items-start">
+      price *= qty;
+      total_qty += qty;
+      total_price += price;
+
+      myStr = `
+              <li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="ms-2 me-auto">
                     ${name}
                 </div>
-                <span class="badge bg-primary rounded-pill">${qty}</span>
-            </li>`
+                <span class="badge bg-primary rounded-pill">${qty}</span>&nbsp;
+                <span class="badge bg-primary rounded-pill">${price}</span>
+              </li>`
       $('#item').append(myStr);
     }
   }
+
+  mystr_total = `
+                      <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <strong>Grand Total</strong>
+                        </div>
+                        <span class="badge bg-primary rounded-pill"><strong>${total_qty}</strong></span>&nbsp;
+                        <span class="badge bg-primary rounded-pill"><strong>${total_price}</strong></span>
+                      </li>
+                      `
+      $('#item_total').append(mystr_total);
 
   document.getElementById('cart').innerHTML = sum;
 
@@ -101,7 +139,7 @@
   {% if order_placed %}
   alert('Your oder has been placed, please track the same using oder id: {{order_id}}')
   localStorage.clear();
-  document.location='/shop';  // redirect to shop home page after placing an order
+  document.location = '/shop';  // redirect to shop home page after placing an order
   {% endif %}
 </script>
 {% endblock %}
