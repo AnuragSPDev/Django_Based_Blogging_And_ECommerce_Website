@@ -21,9 +21,17 @@
         </form>
     </div>
     <hr>
-    <div class="col my-4">
+    <div class="col my-4" style="display: none;" id="track_order">
         <h5>Track your order below</h5>
         <ol class="list-group list-group-numbered" id="items">
+        </ol>
+    </div>
+
+    <div class="col my-4" style="display: none;" id="item_detail">
+        <h5>Your order detail is below</h5>
+        <ol class="list-group" id="item_heading">
+        </ol>
+        <ol class="list-group list-group-numbered" id="order_items">
         </ol>
     </div>
 </div>
@@ -46,33 +54,81 @@
             method: 'POST',
             data: form_data,
             success: function (data) {
-                console.log(data);
-                parsed_data = JSON.parse(data);
-                if (parsed_data.length > 0 && parsed_data != {}) {
-                    for (i = 0; i < parsed_data.length; i++) {
-                        date = new Date(parsed_data[i]['update_time']);
-                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                        let text = parsed_data[i]['text'];
-                        let update_time = date.toLocaleDateString(undefined, options);
-                        const seconds = String(date.getSeconds()).padStart(2, '0');
-                        time = ' ' + date.getHours() + ':' + date.getMinutes() + ':' + seconds;
-                        update_time += time;
-                        myStr = `<li class="list-group-item d-flex justify-content-between align-items-start">
+                if (data != '{}') {
+                    parsed_data = JSON.parse(data);
+                    console.log(parsed_data);
+                    if (parsed_data[0].length > 0 && parsed_data[0] != {}) {
+                        // Display Order tracking data and purchased items data only when 
+                        // there's data found otherwise by defult they're hidden
+                        document.getElementById('track_order').style.display = "block";
+                        document.getElementById('item_detail').style.display = "block";
+
+                        // Reset data present in tracking data and purchased items data
+                        // if present previously otherwise, we have data duplicity  
+                        document.getElementById('item_heading').innerHTML = "";
+                        document.getElementById('order_items').innerHTML = "";
+                        for (i = 0; i < parsed_data[0].length; i++) {
+                            date = new Date(parsed_data[0][i]['update_time']);
+                            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                            let text = parsed_data[0][i]['text'];
+                            let update_time = date.toLocaleDateString(undefined, options);
+                            const seconds = String(date.getSeconds()).padStart(2, '0');
+                            time = ' ' + date.getHours() + ':' + date.getMinutes() + ':' + seconds;
+                            update_time += time;
+                            myStr = `<li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div class="ms-2 me-auto">
                                     ${text}
                                     </div>
                                     <span class="badge bg-primary rounded-pill">${update_time}</span>
                                 </li>`
+                            $('#items').append(myStr);
+                        }
+                        mystr_heading = `
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <strong>Product Name</strong>
+                            </div>
+                            <span class="badge bg-primary rounded-pill"><strong>Quantity</strong></span>&nbsp;
+                            <span class="badge bg-primary rounded-pill"><strong>Price</strong></span>
+                            </li>
+                            `
+                        $('#item_heading').append(mystr_heading);
+                        cart = JSON.parse(parsed_data[1]);
+                        for (var item in cart) {
+                            let qty = cart[item][0];
+                            let name = cart[item][1];
+                            let price = cart[item][2];
+                            console.log(`price: ${price}`);
+                            price = parseInt(price.slice(4));
+
+                            myStr = `
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                              <div class="ms-2 me-auto">
+                                  ${name}
+                              </div>
+                              <span class="badge bg-primary rounded-pill">${qty}</span>&nbsp;
+                              <span class="badge bg-primary rounded-pill">${price}</span>
+                            </li>`
+                            $('#order_items').append(myStr);
+                        }
+                    } else {
+                        myStr = `
+                                <div class="ms-2 me-auto">
+                                 <strong>Sorry, No order found with this order id. Please check order number and type correct email id.</strong>
+                                </div>
+                            `
                         $('#items').append(myStr);
                     }
                 } else {
+                    console.log('No data to display');
+                    document.getElementById('track_order').style.display = "block";
                     myStr = `
                                 <div class="ms-2 me-auto">
                                  <strong>Sorry, No order found with this order id. Please check order number and type correct email id.</strong>
                                 </div>
-                                
                             `
                     $('#items').append(myStr);
+                    document.getElementById('item_detail').style.display = "none";
                 }
 
             }

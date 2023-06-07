@@ -9,7 +9,7 @@
     </ol>
     <ol class="list-group list-group-numbered" id="item">
     </ol>
-    <ol class="list-group" id="item_total">
+    <ol class="list-group" id="item_total" style="display: none;">
     </ol>
   </div>
   <hr>
@@ -82,12 +82,13 @@
   var total_qty = 0;
   var total_price = 0;
   if ($.isEmptyObject(cart)) {
-    myStr = '<p>You have not pick any item, please select items to purchanse and then check them out. Thank you!</p>'
+    myStr = '<p>You have not pick any item, please select items to purchase and then check them out. Thank you!</p>'
     $('#item').append(myStr);
   }
   else {
     // show shipping details section only when cart has item(s)
     document.getElementById('shipping_details').style.display = 'block';
+    document.getElementById('item_total').style.display = 'block';
 
     mystr_heading = `
                       <li class="list-group-item d-flex justify-content-between align-items-start">

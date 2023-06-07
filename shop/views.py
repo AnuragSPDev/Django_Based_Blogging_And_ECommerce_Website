@@ -63,7 +63,7 @@ def get_order_updates(order_id, email):
     updates = []
     for update in order_update:
         updates.append({'text': update.update_desc, 'update_time':update.update_time})
-        response = json.dumps(updates, default=str)
+        response = json.dumps([updates, order[0].items_json], default=str)
     return HttpResponse(response)
 
 def productview(request, id):
