@@ -64,8 +64,8 @@
 <div class="container">
   <!-- Slideshow starts here -->
   {% for products, range, num_of_slides in all_products %}
-  <h3>{{products.0.category}}</h3>
-  <div class="row">
+  <h3 style='margin-top: 1rem;'>{{products.0.category}}</h3>
+  <div class="row" style='margin-right: -14rem; margin-left: unset !important;'>
     <div id="demo{{forloop.counter}}" class="col carousel slide my-3" data-ride="carousel">
       <div class="carousel-indicators">
         <button type="button" data-target="#demo{{forloop.counter}}" data-bs-slide-to="0" class="active"
@@ -82,13 +82,17 @@
           <div class="row">
 
             {% for product in products %}
-            <div class="col-xs-3 col-sm-3 col-md-3">
+            <div class="col-xs-3 col-sm-3 col-md-3" style='margin-left: 0rem;'>
               <div class="card align-items-center" style="width: 18rem;">
                 <img src="/media/{{product.image}}" class="card-img-top" alt="...">
                 <div class="card-body">
-                  <h5 class="card-title" style='font-size: 1.00rem' id="nameprod_{{product.id}}">{{product.product_name}}</h5>
+                  <h5 class="card-title" style='font-size: 1.00rem' id="nameprod_{{product.id}}">
+                    {{product.product_name}}</h5>
                   <p class="card-text" style='font-size: .90rem'>{{product.desc}}</p>
-                  <strong><p class="card-text" style='font-size: .90rem' id="priceprod_{{product.id}}">Rs. {{product.price}}</p></strong>
+                  <strong>
+                    <p class="card-text" style='font-size: .90rem; margin-bottom: 10px;' id="priceprod_{{product.id}}">
+                      Rs. {{product.price}}</p>
+                  </strong>
                   <span id="divprod_{{product.id}}" class="divprod">
                     <button id="prod_{{product.id}}" class="btn btn-primary cart">Add To Cart</button>
                   </span>
